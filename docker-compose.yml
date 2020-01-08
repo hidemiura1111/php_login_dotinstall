@@ -1,0 +1,54 @@
+version: '3'
+services:
+
+ nginx:
+   image: nginx:latest
+   ports:
+     - 8080:80
+   volumes:
+     - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+     - ./www/html:/var/www/html
+   links:
+     - php
+
+ php:
+   build: ./php
+   volumes:
+     - ./www/html:/var/www/html
+   links:
+     - mysql
+
+ mysql:
+   image: mysql:5.7
+   ports:
+     - 3306:3306
+   volumes:
+     - ./mysql/data:/var/lib/mysql
+     - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+     - ./mysql/sql:/docker-entrypoint-initdb.d
+   command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  #  restart: always
+   environment:
+    MYSQL_USER: user
+    MYSQL_PASSWORD: user
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: default_schema
+    # - MYSQL_ROOT_PASSWORD=pass
+
+ phpmyadmin:
+   image: phpmyadmin/phpmyadmin:latest
+   environment:
+    # PMA_HOST: mysql
+    # PMA_PORT: 3306
+    # PMA_ARBITRARY: 1
+    PMA_ARBITRARY: 1
+    PMA_HOST: mysql
+    PMA_USER: root
+    PMA_PASSWORD: root
+   ports:
+     - 8888:80
+  #  links:
+    #  - mysql
+  #  restart: always
+  #  volumes:
+    # - ./phpmyadmin/sessions:/sessions
